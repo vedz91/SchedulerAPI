@@ -5,10 +5,12 @@ import com.google.common.io.Resources;
 import com.hubspot.testapi.api.ScheduleRequest;
 import com.hubspot.testapi.api.PartnersListResponse;
 import io.dropwizard.jackson.Jackson;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -17,7 +19,16 @@ import static org.junit.Assert.*;
 public class InvitationServiceTest {
 
     @Test
-    public void test() {
+    public void testPrepareInviteWithNoPartner() {
+
+        PartnersListResponse ps = new PartnersListResponse.Builder()
+                .withPartners(new ArrayList<>())
+                .build();
+
+        InvitationService service = new InvitationService(null);
+        ScheduleRequest invitations = service.prepareInvitations(ps);
+        assertNotEquals(null, invitations);
+        assertEquals(0, invitations.getCountries().size());
     }
 
     @Test

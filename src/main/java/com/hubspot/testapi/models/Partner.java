@@ -20,10 +20,11 @@ public class Partner {
     private String firstName;
     private String lastName;
 
-    @JsonIgnore
+
     /**
      * Will return list of dates from which a user is available for two days
       */
+    @JsonIgnore
     public List<LocalDate> feasibleDates() {
         if(this.availableDates == null || this.availableDates.size() == 0) return new ArrayList<>();
         Collections.sort(this.availableDates);

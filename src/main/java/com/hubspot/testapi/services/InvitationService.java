@@ -12,10 +12,7 @@ import retrofit2.Call;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class InvitationService {
 
@@ -60,8 +57,7 @@ public class InvitationService {
             }
             return invitations;
         } catch (IOException e) {
-            throw new HubspotAPIException(e.getMessage(),
-                    Response.Status.INTERNAL_SERVER_ERROR);
+            throw new HubspotAPIException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -72,7 +68,7 @@ public class InvitationService {
      */
     public ScheduleRequest prepareInvitations(PartnersListResponse partnersListResponse) {
 
-        //Step 1: divide them based on the country
+        //Step 1: divide the partners based on the country
         Map<String, List<Partner>> countryMap = new HashMap<>();
         for (Partner partner : partnersListResponse.getPartners()) {
             List<Partner> countryPartners = countryMap.getOrDefault(partner.getCountry(), new ArrayList<>());
@@ -80,24 +76,26 @@ public class InvitationService {
             countryMap.put(partner.getCountry(), countryPartners);
         }
 
+        //Step 2: Loop through each countries
         List<Invitation> invitations = new ArrayList<>();
         for (Map.Entry<String, List<Partner>> entrySet : countryMap.entrySet()) {
             List<Partner> partnersInACountry = entrySet.getValue();
-            Map<LocalDate, List<Partner>> partnerByDatesMap = new HashMap<>();
+            Map<LocalDate, List<Partner>> partnerByFeasibleDatesMap = new HashMap<>();
             Integer maxCount = 0;
             LocalDate maxDate = null;
+            //Step 2a: for each partners look for feasible date
             for (Partner partner : partnersInACountry) {
                 for (LocalDate availableDate : partner.feasibleDates()) {
-                    List<Partner> partners = partnerByDatesMap.getOrDefault(availableDate, new ArrayList<>());
+                    List<Partner> partners = partnerByFeasibleDatesMap.getOrDefault(availableDate, new ArrayList<>());
                     partners.add(partner);
                     if (partners.size() > maxCount) {
                         maxCount = partners.size();
                         maxDate = availableDate;
                     }
-                    partnerByDatesMap.put(availableDate, partners);
+                    partnerByFeasibleDatesMap.put(availableDate, partners);
                 }
             }
-            invitations.add(Invitation.buildWithPartners(maxDate, entrySet.getKey(), partnerByDatesMap.getOrDefault(maxDate, new ArrayList<>())));
+            invitations.add(Invitation.buildWithPartners(Optional.ofNullable(maxDate), entrySet.getKey(), partnerByFeasibleDatesMap.getOrDefault(maxDate, new ArrayList<>())));
         }
 
         return new ScheduleRequest.Builder()

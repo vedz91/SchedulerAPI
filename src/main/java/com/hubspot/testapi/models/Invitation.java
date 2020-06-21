@@ -4,6 +4,7 @@ package com.hubspot.testapi.models;
 import org.joda.time.LocalDate;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
@@ -30,10 +31,10 @@ public class Invitation {
         return startDate;
     }
 
-    public static Invitation buildWithPartners(LocalDate date, String country, List<Partner> partners) {
+    public static Invitation buildWithPartners(Optional<LocalDate> date, String country, List<Partner> partners) {
         return new Builder()
                 .withName(country)
-                .withStartDate(date != null ? date.toString() : null)
+                .withStartDate(date.isPresent() ? date.get().toString() : null)
                 .withAttendeeCount(Long.valueOf(partners.size()))
                 .withAttendees(partners.stream().map(Partner::getEmail).collect(Collectors.toList()))
                 .build();
