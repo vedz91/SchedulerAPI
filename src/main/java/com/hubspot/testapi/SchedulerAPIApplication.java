@@ -8,6 +8,8 @@ import com.hubspot.testapi.resources.InvitationResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import io.federecio.dropwizard.swagger.SwaggerBundle;
+import io.federecio.dropwizard.swagger.SwaggerBundleConfiguration;
 
 public class SchedulerAPIApplication extends Application<SchedulerAPIConfiguration> {
 
@@ -24,7 +26,12 @@ public class SchedulerAPIApplication extends Application<SchedulerAPIConfigurati
 
     @Override
     public void initialize(final Bootstrap<SchedulerAPIConfiguration> bootstrap) {
-        // TODO: application initialization
+        bootstrap.addBundle(new SwaggerBundle<SchedulerAPIConfiguration>() {
+            @Override
+            protected SwaggerBundleConfiguration getSwaggerBundleConfiguration(final SchedulerAPIConfiguration configuration) {
+                return configuration.swaggerBundleConfiguration;
+            }
+        });
     }
 
     @Override

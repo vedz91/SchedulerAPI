@@ -11,3 +11,9 @@ logging:
     com.hubspot.testapi: DEBUG
 hubspotApi:
   url: https://candidate.hubteam.com
+swagger:
+  resourcePackage: com.hubspot.testapi.resources
+  title: SchedulerAPI
+  version: 1.0-SNAPSHOT
+  description:
+  contact: vedang91@gmail.com
