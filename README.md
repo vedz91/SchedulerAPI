@@ -1,5 +1,9 @@
 # SchedulerAPI
 
+Git Link
+---
+App is also available via Git: https://github.com/vedz91/SchedulerAPI
+
 How to start the SchedulerAPI application
 ---
 
