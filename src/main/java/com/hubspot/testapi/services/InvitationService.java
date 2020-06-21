@@ -14,6 +14,7 @@ import retrofit2.Call;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class InvitationService {
 
@@ -31,20 +32,18 @@ public class InvitationService {
 
     /**
      * Find the availability date for the maximum partners per country
+     *
      * @param partnersListResponse
      * @return
      */
     public ScheduleRequest prepareInvitations(PartnersListResponse partnersListResponse) {
 
         //Step 1: divide the partners based on the country
-        Map<String, List<Partner>> countryMap = new HashMap<>();
-        for (Partner partner : partnersListResponse.getPartners()) {
-            List<Partner> countryPartners = countryMap.getOrDefault(partner.getCountry(), new ArrayList<>());
-            countryPartners.add(partner);
-            countryMap.put(partner.getCountry(), countryPartners);
-        }
+        Map<String, List<Partner>> countryMap = partnersListResponse.getPartners()
+                .stream()
+                .collect(Collectors.groupingBy(Partner::getCountry));
 
-        //Step 2: Loop through each countries
+        //Step 2: Loop through each country
         List<Invitation> invitations = new ArrayList<>();
         for (Map.Entry<String, List<Partner>> entrySet : countryMap.entrySet()) {
             List<Partner> partnersInACountry = entrySet.getValue();
