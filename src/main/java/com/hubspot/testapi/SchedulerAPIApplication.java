@@ -3,6 +3,7 @@ package com.hubspot.testapi;
 import com.hubspot.testapi.client.HubspotClient;
 import com.hubspot.testapi.core.exception.mapper.HubspotAPIExceptionMapper;
 import com.hubspot.testapi.core.retrofit.RetrofitClient;
+import com.hubspot.testapi.health.ConfigurationHealthCheck;
 import com.hubspot.testapi.resources.InvitationResource;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Bootstrap;
@@ -29,9 +30,14 @@ public class SchedulerAPIApplication extends Application<SchedulerAPIConfigurati
     @Override
     public void run(final SchedulerAPIConfiguration configuration,
                     final Environment environment) {
-        // TODO: implement application
+        // HEALTH Check
+        environment.healthChecks()
+                .register("ConfigurationHealthCheck", new ConfigurationHealthCheck(new Object()));
 
+        //Exception Mapper
         environment.jersey().register(new HubspotAPIExceptionMapper());
+
+        //Resources
         environment.jersey().register(new InvitationResource(hubspotRetrofitClient.get(configuration.hubspotApiConfig)));
     }
 
