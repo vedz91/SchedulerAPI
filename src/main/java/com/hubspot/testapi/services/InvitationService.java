@@ -7,6 +7,7 @@ import com.hubspot.testapi.client.HubspotClient;
 import com.hubspot.testapi.core.exception.HubspotAPIException;
 import com.hubspot.testapi.models.Invitation;
 import com.hubspot.testapi.models.Partner;
+import com.hubspot.testapi.models.literals.ExceptionLiterals;
 import org.joda.time.LocalDate;
 import retrofit2.Call;
 
@@ -26,39 +27,6 @@ public class InvitationService {
         PartnersListResponse partnersListResponse = fetchPartners();
         ScheduleRequest invitations = prepareInvitations(partnersListResponse);
         return updateInvitations(invitations);
-    }
-
-    /**
-     * fetches list of partners from Hubspot API
-     *
-     * @return
-     */
-    private PartnersListResponse fetchPartners() {
-        try {
-            Call<PartnersListResponse> availabilityResponse = this.hubspotClient.getAvailability();
-            return availabilityResponse.execute().body();
-        } catch (IOException e) {
-            throw new HubspotAPIException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    /**
-     * Updates availability of partners per country on Hubspot API
-     *
-     * @param invitations
-     * @return
-     */
-    private ScheduleRequest updateInvitations(ScheduleRequest invitations) {
-        try {
-            Call<ScheduleResponse> availabilityResponse = this.hubspotClient.updateInvitation(invitations);
-            ScheduleResponse scheduleResponse = availabilityResponse.execute().body();
-            if (scheduleResponse == null || (scheduleResponse.getStatus() != null && scheduleResponse.getStatus().equalsIgnoreCase("error"))) {
-                throw new HubspotAPIException("Exception from Hubspot API", Response.Status.EXPECTATION_FAILED);
-            }
-            return invitations;
-        } catch (IOException e) {
-            throw new HubspotAPIException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
-        }
     }
 
     /**
@@ -101,6 +69,39 @@ public class InvitationService {
         return new ScheduleRequest.Builder()
                 .withCountries(invitations)
                 .build();
+    }
+
+    /**
+     * fetches list of partners from Hubspot API
+     *
+     * @return
+     */
+    private PartnersListResponse fetchPartners() {
+        try {
+            Call<PartnersListResponse> availabilityResponse = this.hubspotClient.getAvailability();
+            return availabilityResponse.execute().body();
+        } catch (IOException e) {
+            throw new HubspotAPIException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Updates availability of partners per country on Hubspot API
+     *
+     * @param invitations
+     * @return
+     */
+    private ScheduleRequest updateInvitations(ScheduleRequest invitations) {
+        try {
+            Call<ScheduleResponse> availabilityResponse = this.hubspotClient.updateInvitation(invitations);
+            ScheduleResponse scheduleResponse = availabilityResponse.execute().body();
+            if (scheduleResponse == null || (scheduleResponse.getStatus() != null && scheduleResponse.getStatus().equalsIgnoreCase("error"))) {
+                throw new HubspotAPIException(ExceptionLiterals.HS_RESULT_ERROR, Response.Status.EXPECTATION_FAILED);
+            }
+            return invitations;
+        } catch (IOException e) {
+            throw new HubspotAPIException(e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }
